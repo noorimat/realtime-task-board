@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import { initDatabase, getTasks, createTask, updateTask, deleteTask } from './database';
 
 const app = express();
 const httpServer = createServer(app);
@@ -15,33 +16,44 @@ const io = new Server(httpServer, {
 app.use(cors());
 app.use(express.json());
 
-// In-memory storage for now (we'll add DB later)
-let tasks: any[] = [];
+initDatabase().catch(console.error);
 
-// Socket.io connection
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log('User connected:', socket.id);
   
-  // Send existing tasks to new client
-  socket.emit('tasks:load', tasks);
+  try {
+    const tasks = await getTasks();
+    socket.emit('tasks:load', tasks);
+  } catch (error) {
+    console.error('Error loading tasks:', error);
+  }
   
-  // Create task
-  socket.on('task:create', (task) => {
-    const newTask = { ...task, id: Date.now().toString() };
-    tasks.push(newTask);
-    io.emit('task:created', newTask);
+  socket.on('task:create', async (task) => {
+    try {
+      const newTask = { ...task, id: Date.now().toString() };
+      await createTask(newTask);
+      io.emit('task:created', newTask);
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
   });
   
-  // Update task
-  socket.on('task:update', (updatedTask) => {
-    tasks = tasks.map(t => t.id === updatedTask.id ? updatedTask : t);
-    io.emit('task:updated', updatedTask);
+  socket.on('task:update', async (updatedTask) => {
+    try {
+      await updateTask(updatedTask);
+      io.emit('task:updated', updatedTask);
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
   });
   
-  // Delete task
-  socket.on('task:delete', (taskId) => {
-    tasks = tasks.filter(t => t.id !== taskId);
-    io.emit('task:deleted', taskId);
+  socket.on('task:delete', async (taskId) => {
+    try {
+      await deleteTask(taskId);
+      io.emit('task:deleted', taskId);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   });
   
   socket.on('disconnect', () => {
