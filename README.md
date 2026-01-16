@@ -2,6 +2,12 @@
 
 A modern, real-time task management application built with WebSockets. Multiple users can collaborate simultaneously with instant synchronization across all connected clients.
 
+## Demo
+
+[![Task Board Demo](https://img.youtube.com/vi/6xdzvhUEz_c/maxresdefault.jpg)](https://youtu.be/6xdzvhUEz_c)
+
+*Click to watch: Real-time collaboration with WebSocket synchronization*
+
 ## Features
 
 - **Real-Time Synchronization**: WebSocket-powered live updates across all clients
@@ -9,6 +15,7 @@ A modern, real-time task management application built with WebSockets. Multiple 
 - **Modern UI**: Beautiful gradient design with smooth animations
 - **Type-Safe**: Built with TypeScript for reliability
 - **Collaborative**: Multiple users can work together in real-time
+- **Persistent Storage**: PostgreSQL database for data persistence
 
 ## Tech Stack
 
@@ -22,13 +29,14 @@ A modern, real-time task management application built with WebSockets. Multiple 
 - Node.js + Express
 - Socket.io Server (WebSocket)
 - TypeScript
-- In-memory storage
+- PostgreSQL database
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ 
+- PostgreSQL
 - npm or yarn
 
 ### Installation
@@ -39,13 +47,18 @@ git clone https://github.com/noorimat/realtime-task-board.git
 cd realtime-task-board
 ```
 
-2. Install backend dependencies:
+2. Set up PostgreSQL:
+```bash
+createdb taskboard
+```
+
+3. Install backend dependencies:
 ```bash
 cd server
 npm install
 ```
 
-3. Install frontend dependencies:
+4. Install frontend dependencies:
 ```bash
 cd ../client
 npm install
@@ -77,10 +90,12 @@ The app uses Socket.io for bi-directional real-time communication:
 
 - **Client → Server**: Emits events (create, update, delete tasks)
 - **Server → All Clients**: Broadcasts updates to keep everyone in sync
+- **PostgreSQL**: Persists all data for reliability
 
 ### Event Flow
 ```
 User creates task → Client emits 'task:create' 
+                 → Server saves to database
                  → Server broadcasts 'task:created' 
                  → All clients update UI instantly
 ```
@@ -96,7 +111,8 @@ realtime-task-board/
 │   └── package.json
 ├── server/              # Node.js backend
 │   ├── src/
-│   │   └── index.ts     # Express + Socket.io server
+│   │   ├── index.ts     # Express + Socket.io server
+│   │   └── database.ts  # PostgreSQL queries
 │   └── package.json
 └── README.md
 ```
@@ -105,6 +121,7 @@ realtime-task-board/
 
 - **Full-Stack Development**: Frontend + Backend integration
 - **Real-Time Communication**: WebSocket implementation
+- **Database Integration**: PostgreSQL with connection pooling
 - **State Management**: React hooks (useState, useEffect)
 - **Event-Driven Architecture**: Socket.io events
 - **TypeScript**: Type safety across the stack
@@ -127,13 +144,13 @@ realtime-task-board/
 
 ## Future Enhancements
 
-- [ ] PostgreSQL database for persistence
 - [ ] User authentication and authorization
 - [ ] Drag-and-drop between columns
 - [ ] Task assignment to specific users
 - [ ] Due dates and priority levels
 - [ ] File attachments
-- [ ] Deploy to production (Vercel + Railway)
+- [ ] Email notifications
+- [ ] Deploy to production (Vercel + Railway/Render)
 
 ## License
 
